@@ -1,4 +1,4 @@
 import torch
 
-def get_dummy_inputs(vocab_size=100, seq_len=6, batch_size=1):
-    return torch.randint(0, vocab_size, (batch_size, seq_len))
+def get_dummy_input(seq_len=6, d_model=64):
+    return torch.rand(1, seq_len, d_model)
