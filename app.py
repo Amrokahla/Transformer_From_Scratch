@@ -9,40 +9,32 @@ import numpy as np
 from model.transformer import Transformer
 from model.tokenizer import SimpleTokenizer
 
-# Download words if needed
 nltk.download("words", quiet=True)
 
-# Build vocab
 nltk_vocab = ["<pad>", "<sos>", "<eos>", "<unk>"] + list(set(words.words()))
 vocab = {word: idx for idx, word in enumerate(nltk_vocab)}
 
-# Attention heatmap plot
 def plot_attention(attn, input_tokens):
     fig, ax = plt.subplots()
     sns.heatmap(attn, xticklabels=input_tokens, yticklabels=input_tokens, cmap="viridis")
     st.pyplot(fig)
 
-# Streamlit App
-st.title("🔍 Transformer Attention Visualizer")
+st.title("Transformer Attention Visualizer")
+st.subheader("What will the transformer pay attention to")
 
-# Input
 text = st.text_input("Enter sentence:", "hello world")
 
-# Hyperparameter sliders
 d_model = st.slider("Model dimension (d_model)", 32, 512, 128, step=32)
 num_heads = st.slider("Number of Attention Heads", 1, 8, 4)
 num_layers = st.slider("Number of Transformer Layers", 1, 6, 2)
 
-# Run button
 run = st.button("Run Transformer")
 
-# Init session state
 if "logits" not in st.session_state:
     st.session_state["logits"] = None
     st.session_state["attentions"] = None
     st.session_state["tokens"] = None
 
-# Model execution
 if run:
     tokenizer = SimpleTokenizer(vocab)
     model = Transformer(
@@ -67,7 +59,6 @@ if run:
     st.session_state["attentions"] = attentions
     st.session_state["tokens"] = tokens
 
-# Visualization UI
 if st.session_state["attentions"]:
     tokens = st.session_state["tokens"]
     attentions = st.session_state["attentions"]
