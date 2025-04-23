@@ -32,7 +32,6 @@ def scaled_dot_product_attention(q, k, v, mask=None):
 class MultiHeadAttention(nn.Module):
     def __init__(self, d_model, num_heads):
         super().__init__()
-        assert d_model % num_heads == 0
         self.num_heads = num_heads
         self.head_dim = d_model // num_heads
 
