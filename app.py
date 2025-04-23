@@ -27,7 +27,7 @@ model.eval()
 text = st.text_input("Enter a sentence to analyze attention:", "hello world")
 if st.button("Run Transformer"):
     input_ids = tokenizer.encode(text)
-    tokens = tokenizer.decode_to_tokens(input_ids.tolist())
+    tokens = tokenizer.decode_to_tokens(input_ids)
 
     input_tensor = torch.tensor([input_ids])
 
