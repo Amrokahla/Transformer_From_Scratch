@@ -1,4 +1,4 @@
-import streamlit as st
+"""import streamlit as st
 import torch
 from model.transformer import Transformer
 from model.tokenizer import SimpleTokenizer
@@ -38,4 +38,4 @@ if st.button("Run Transformer"):
     st.write(predictions)
 
     st.markdown("### Attention Map (Layer 1, Head 1)")
-    plot_attention(attentions[0][0][0].detach().numpy(), tokens)
+    plot_attention(attentions[0][0][0].detach().numpy(), tokens)"""
