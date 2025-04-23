@@ -78,8 +78,3 @@ if st.session_state["attentions"]:
 
     attn = attentions[layer][0, head].detach().numpy()
     plot_attention(attn, tokens)
-
-    st.markdown("### Predicted Tokens")
-    pred_ids = st.session_state["logits"].argmax(dim=-1)[0]
-    pred_tokens = tokenizer.decode_to_tokens(pred_ids.tolist())
-    st.write(pred_tokens)
