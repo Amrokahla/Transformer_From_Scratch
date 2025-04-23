@@ -24,8 +24,8 @@ st.subheader("What will the transformer pay attention to")
 
 text = st.text_input("Enter sentence:", "hello world")
 
-D_model = st.slider("Model dimension (d_model)", 64, 256, 128 , options=[64, 128, 256])
-num_heads = st.slider("Number of Attention Heads", 1, 8, 4, options=[2, 4, 8])
+D_model = st.slider("Model dimension (d_model)", 64, 256, 128, step = 64)
+num_heads = st.slider("Number of Attention Heads", 4, 8, 4, step =4 )
 num_layers = st.slider("Number of Transformer Layers", 1, 6, 2)
 
 run = st.button("Run Transformer")
