@@ -1,50 +1,85 @@
 import streamlit as st
 import torch
 import nltk
-import numpy as np
-import matplotlib.pyplot as plt
 from nltk.corpus import words
+import matplotlib.pyplot as plt
+import seaborn as sns
+import numpy as np
+
 from model.transformer import Transformer
 from model.tokenizer import SimpleTokenizer
-from model.attention_utils import plot_attention
 
-nltk.download("words")
+# Download words if needed
+nltk.download("words", quiet=True)
 
-nltk_vocab = ["<pad>", "<sos>", "<eos>"] + list(set(words.words()))
+# Build vocab
+nltk_vocab = ["<pad>", "<sos>", "<eos>", "<unk>"] + list(set(words.words()))
 vocab = {word: idx for idx, word in enumerate(nltk_vocab)}
-tokenizer = SimpleTokenizer(vocab)
 
-st.title("Transformer Attention Visualizer")
+# Attention heatmap plot
+def plot_attention(attn, input_tokens):
+    fig, ax = plt.subplots()
+    sns.heatmap(attn, xticklabels=input_tokens, yticklabels=input_tokens, cmap="viridis")
+    st.pyplot(fig)
 
-st.sidebar.header("Transformer Hyperparameters")
-num_layers = st.sidebar.slider("Number of Layers", 1, 6, 2)
-num_heads = st.sidebar.slider("Number of Heads", 1, 8, 2)
-d_model = st.sidebar.slider("Model Dimension (d_model)", 64, 512, 128, step=64)
+# Streamlit App
+st.title("🔍 Transformer Attention Visualizer")
 
-model = Transformer(vocab_size=len(vocab), num_layers=num_layers, num_heads=num_heads, d_model=d_model)
-model.eval()
+# Input
+text = st.text_input("Enter sentence:", "hello world")
 
-text = st.text_input("Enter a sentence to analyze attention:", "hello world")
-if st.button("Run Transformer"):
+# Hyperparameter sliders
+d_model = st.slider("Model dimension (d_model)", 32, 512, 128, step=32)
+num_heads = st.slider("Number of Attention Heads", 1, 8, 4)
+num_layers = st.slider("Number of Transformer Layers", 1, 6, 2)
+
+# Run button
+run = st.button("Run Transformer")
+
+# Init session state
+if "logits" not in st.session_state:
+    st.session_state["logits"] = None
+    st.session_state["attentions"] = None
+    st.session_state["tokens"] = None
+
+# Model execution
+if run:
+    tokenizer = SimpleTokenizer(vocab)
+    model = Transformer(
+        vocab_size=len(vocab),
+        d_model=d_model,
+        num_heads=num_heads,
+        num_layers=num_layers,
+        ff_dim=4*d_model
+    )
+    model.eval()
+
     input_ids = tokenizer.encode(text)
-    tokens = tokenizer.decode_to_tokens(input_ids)
-
     input_tensor = torch.tensor([input_ids])
 
     with torch.no_grad():
         logits, attentions = model(input_tensor)
 
     pred_ids = logits.argmax(dim=-1)[0]
-    predictions = tokenizer.decode_to_tokens(pred_ids.tolist())
+    tokens = tokenizer.decode_to_tokens(input_ids)
 
-    st.markdown("### Predicted Output")
-    st.write(" ".join(predictions))
+    st.session_state["logits"] = logits
+    st.session_state["attentions"] = attentions
+    st.session_state["tokens"] = tokens
 
-    st.subheader("Attention Visualization")
-    selected_layer = st.slider("Select Layer", 0, num_layers - 1, 0)
-    selected_head = st.slider("Select Head", 0, num_heads - 1, 0)
+# Visualization UI
+if st.session_state["attentions"]:
+    tokens = st.session_state["tokens"]
+    attentions = st.session_state["attentions"]
 
-    selected_attention = attentions[selected_layer][0, selected_head].detach().numpy()
+    st.markdown("### Attention Heatmap")
+    layer = st.slider("Layer", 0, len(attentions) - 1, 0)
+    head = st.slider("Head", 0, attentions[0].shape[1] - 1, 0)
 
-    st.markdown(f"#### Attention Map (Layer {selected_layer + 1}, Head {selected_head + 1})")
-    plot_attention(selected_attention, tokens)
+    attn = attentions[layer][0, head].detach().numpy()
+    plot_attention(attn, tokens)
+
+    st.markdown("### Predicted Tokens")
+    pred_ids = st.session_state["logits"].argmax(dim=-1)[0]
+    pred_tokens = tokenizer.decode_to_tokens(pred_ids.tolist())
+    st.write(pred_tokens)
