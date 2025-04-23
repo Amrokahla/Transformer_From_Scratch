@@ -7,7 +7,7 @@ import nltk
 from nltk.corpus import words
 
 # Dummy vocab
-<<<<<<< HEAD
+
 nltk.download("words")
 
 # Build vocab from NLTK words
