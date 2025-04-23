@@ -1,21 +1,33 @@
 import streamlit as st
 import torch
-from model import MiniTransformerBlock
-from sample_data import get_dummy_input
-from attention_utils import plot_attention
+from model.transformer import Transformer
+from model.tokenizer import SimpleTokenizer
+from model.attention_utils import plot_attention
 
-st.set_page_config(page_title="Mini Transformer Attention")
+# Dummy vocab
+vocab = {'<pad>': 0, 'hello': 1, 'world': 2, 'i': 3, 'am': 4, 'gpt': 5}
+tokenizer = SimpleTokenizer(vocab)
 
-st.title("🧠 Mini Transformer Attention Visualizer")
-st.markdown("Visualizing attention from a single encoder block.")
+# Load model
+model = Transformer(vocab_size=len(vocab))
+model.eval()
 
-seq_len = st.slider("Sequence Length", 4, 20, 6)
-num_heads = st.slider("Number of Heads", 1, 8, 4)
+st.title("Transformer From Scratch 🧠")
+text = st.text_input("Enter a sentence:", "hello world")
 
-x = get_dummy_input(seq_len=seq_len)
-block = MiniTransformerBlock(d_model=64, num_heads=num_heads)
-output, attn_weights = block(x)
+if st.button("Run Transformer"):
+    input_ids = tokenizer.encode(text)
+    tokens = tokenizer.decode(input_ids)
+    input_tensor = torch.tensor([input_ids])
 
-head = st.selectbox("Head to visualize", list(range(num_heads)))
-fig = plot_attention(attn_weights, head)
-st.plotly_chart(fig)
+    with torch.no_grad():
+        logits, attentions = model(input_tensor)
+
+    pred_ids = logits.argmax(dim=-1)[0]
+    predictions = tokenizer.decode(pred_ids.tolist())
+
+    st.markdown("### Output Tokens")
+    st.write(predictions)
+
+    st.markdown("### Attention Map (Layer 1, Head 1)")
+    plot_attention(attentions[0][0][0].detach().numpy(), tokens)
