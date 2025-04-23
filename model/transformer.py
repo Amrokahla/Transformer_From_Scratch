@@ -42,10 +42,11 @@ class MultiHeadAttention(nn.Module):
     def forward(self, x, mask=None):
         B, T, D = x.shape
         qkv = self.qkv(x).reshape(B, T, 3, self.num_heads, self.head_dim).permute(2, 0, 3, 1, 4)
-        q, k, v = qkv[0], qkv[1], qkv[2]
+        q, k, v = qkv[0], qkv[1], qkv[2] 
 
         out, weights = scaled_dot_product_attention(q, k, v, mask)
         out = out.transpose(1, 2).reshape(B, T, D)
+
         return self.out(out), weights
 
 
@@ -71,11 +72,11 @@ class EncoderBlock(nn.Module):
         self.norm2 = nn.LayerNorm(d_model)
 
     def forward(self, x, mask=None):
-        attn_out, weights = self.attn(x, mask)
+        attn_out, attn_weights = self.attn(x, mask)
         x = self.norm1(x + attn_out)
         ff_out = self.ff(x)
         x = self.norm2(x + ff_out)
-        return x, weights
+        return x, attn_weights
 
 
 class Transformer(nn.Module):
@@ -93,11 +94,11 @@ class Transformer(nn.Module):
     def forward(self, x, mask=None):
         x = self.embedding(x)
         x = self.pos_encoder(x)
-        attentions = []
+        all_attentions = []
 
         for layer in self.encoder_layers:
             x, attn = layer(x, mask)
-            attentions.append(attn)
+            all_attentions.append(attn)
 
         logits = self.fc_out(x)
-        return logits, attentions
+        return logits, all_attentions

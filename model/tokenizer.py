@@ -14,12 +14,15 @@ class SimpleTokenizer:
     def encode(self, text, max_len=None):
         tokens = text.lower().strip().split()
         token_ids = [self.sos_id] + [self.vocab.get(t, self.unk_id) for t in tokens] + [self.eos_id]
+
         if max_len:
-            token_ids = token_ids[:max_len]
+            token_ids = token_ids[:max_len - 1] + [self.eos_id]
+            token_ids = [self.sos_id] + token_ids[1:]
             token_ids += [self.pad_id] * (max_len - len(token_ids))
+
         return token_ids
 
-    def decode(self, token_ids):
+    def decode_to_tokens(self, token_ids):
         tokens = []
         for i in token_ids:
             token = self.inv_vocab.get(i, "<unk>")
@@ -28,3 +31,6 @@ class SimpleTokenizer:
             if token not in {"<pad>", "<sos>"}:
                 tokens.append(token)
         return tokens
+
+    def decode_to_text(self, token_ids):
+        return " ".join(self.decode_to_tokens(token_ids))
