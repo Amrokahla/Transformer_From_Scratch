@@ -5,10 +5,15 @@ class SimpleTokenizer:
         self.pad_id = vocab["<pad>"]
         self.sos_id = vocab.get("<sos>", None)
         self.eos_id = vocab.get("<eos>", None)
+        self.unk_id = vocab.get("<unk>")
+        if self.unk_id is None:
+            self.unk_id = len(self.vocab)
+            self.vocab["<unk>"] = self.unk_id
+            self.inv_vocab[self.unk_id] = "<unk>"
 
     def encode(self, text, max_len=None):
         tokens = text.lower().strip().split()
-        token_ids = [self.sos_id] + [self.vocab.get(t, self.pad_id) for t in tokens] + [self.eos_id]
+        token_ids = [self.sos_id] + [self.vocab.get(t, self.unk_id) for t in tokens] + [self.eos_id]
         if max_len:
             token_ids = token_ids[:max_len]
             token_ids += [self.pad_id] * (max_len - len(token_ids))
@@ -20,6 +25,6 @@ class SimpleTokenizer:
             token = self.inv_vocab.get(i, "<unk>")
             if token == "<eos>":
                 break
-            if token != "<pad>" and token != "<sos>":
+            if token not in {"<pad>", "<sos>"}:
                 tokens.append(token)
         return tokens

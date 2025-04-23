@@ -3,16 +3,23 @@ import torch
 from model.transformer import Transformer
 from model.tokenizer import SimpleTokenizer
 from model.attention_utils import plot_attention
+import nltk
+from nltk.corpus import words
 
 # Dummy vocab
-vocab = {'<pad>': 0, 'hello': 1, 'world': 2, 'i': 3, 'am': 4, 'gpt': 5}
+nltk.download("words")
+
+# Build vocab from NLTK words
+nltk_vocab = ["<pad>", "<sos>", "<eos>"] + list(set(words.words()))
+vocab = {word: idx for idx, word in enumerate(nltk_vocab)}
+
 tokenizer = SimpleTokenizer(vocab)
 
 # Load model
 model = Transformer(vocab_size=len(vocab))
 model.eval()
 
-st.title("Transformer From Scratch 🧠")
+st.title("Dummy Transformer Visualization")
 text = st.text_input("Enter a sentence:", "hello world")
 
 if st.button("Run Transformer"):
