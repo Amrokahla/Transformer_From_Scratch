@@ -64,8 +64,12 @@ if st.session_state["attentions"]:
     attentions = st.session_state["attentions"]
 
     st.markdown("### Attention Heatmap")
-    layer = st.slider("Layer", 0, len(attentions) - 1, 0)
-    head = st.slider("Head", 0, attentions[0].shape[1] - 1, 0)
+    num_layers_available = len(attentions)
+    layer = st.selectbox("Layer", list(range(num_layers_available)), index=0, format_func=lambda x: f"Layer {x}")
+
+    num_heads_available = attentions[0].shape[1]
+    head = st.selectbox("Head", list(range(num_heads_available)), index=0, format_func=lambda x: f"Head {x}")
+
 
     attn = attentions[layer][0, head].detach().numpy()
     plot_attention(attn, tokens)
