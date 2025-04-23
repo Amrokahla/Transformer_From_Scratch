@@ -30,7 +30,6 @@ Transformer_From_Scratch/
 │
 ├── model/                 
 │   ├── tokenizer.py.py
-│   ├── attention.py
 │   ├── attention_utils.py
 │   └── transformer.py
 │
