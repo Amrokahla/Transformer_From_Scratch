@@ -5,14 +5,20 @@ from model.tokenizer import SimpleTokenizer
 from model.attention_utils import plot_attention
 
 # Dummy vocab
-vocab = {'<pad>': 0, 'hello': 1, 'world': 2, 'i': 3, 'am': 4, 'gpt': 5}
+vocab = vocab = {
+    "<pad>": 0, "<sos>": 1, "<eos>": 2, "hello": 3, "world": 4,
+    "how": 5, "are": 6, "you": 7, "i": 8, "am": 9, "fine": 10,
+    "happy": 11, "the": 12, "sun": 13, "is": 14, "bright": 15,
+    "it": 16, "raining": 17, "weather": 18, "nice": 19
+}
+
 tokenizer = SimpleTokenizer(vocab)
 
 # Load model
 model = Transformer(vocab_size=len(vocab))
 model.eval()
 
-st.title("Transformer From Scratch 🧠")
+st.title("Dummy Transformer Visualization")
 text = st.text_input("Enter a sentence:", "hello world")
 
 if st.button("Run Transformer"):
