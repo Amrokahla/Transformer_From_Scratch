@@ -35,7 +35,7 @@ if st.button("Run Transformer"):
         logits, attentions = model(input_tensor)
 
     pred_ids = logits.argmax(dim=-1)[0]
-    predictions = tokenizer.decode(pred_ids.tolist())
+    predictions = tokenizer.decode_to_tokens(pred_ids.tolist())
 
     st.markdown("### Predicted Output")
     st.write(" ".join(predictions))
